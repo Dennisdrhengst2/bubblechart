@@ -167,19 +167,33 @@ var agecatCenters = { // Center locations of the bubbles.
   // Fünfter Button: Sorgenbarometer
  
 var sorgenCenters = { // Center locations of the bubbles.
-    1: { x: 200, y: height / 2 },
-    2: { x: 400, y: height / 2 },
-    3: { x: 600, y: height / 2 },
-    4: { x: 800, y: height / 2 }
+    1: { x: 60, y: height / 2 },
+    2: { x: 262, y: height / 2 },
+    3: { x: 350, y: height / 2 },
+    4: { x: 470, y: height / 2 }
   };
 
   var sorgenTitleX = { // X locations of the year titles.
-    'Mache mir Sorgen um meine Daten': 200,
+    'Mache mir Sorgen um meine Daten': 110,
     'Mache mir eher Sorgen': 400,
-    'Mache mir eher keine Sorgen': 600,
-    'Mache mir keine Sorgen um meine Daten': 800
+    'Mache mir eher keine Sorgen': 640,
+    'Mache mir keine Sorgen um meine Daten': 950
   };
-       
+        // Fünfter Button: Sorgenbarometer
+ 
+var informiertCenters = { // Center locations of the bubbles.
+    1: { x: 300, y: height / 1.9 },
+    2: { x: 500, y: height / 1.8 },
+    3: { x: 800, y: height / 2 }
+
+  };
+
+  var informiertTitleX = { // X locations of the year titles.
+    'Ja': 200,
+    'Selten': 500,
+    'Gar nicht': 950,
+  
+  };
     
 //* ------------------------------------------------------------------
 //
@@ -248,7 +262,9 @@ var sorgenCenters = { // Center locations of the bubbles.
         
         sorgen: d.sorgenbarometer,
         
-        //informiert: d.social-informiert,
+        informiert: d.socialinformiert,
+        
+       
         
         x: Math.random() * 900,
         y: Math.random() * 800
@@ -388,6 +404,7 @@ Die Positionierung basiert auf dem alpha Parameter des force layouts und wird kl
     hideSex();
     hideScreentime();
    hideSorgen();
+   hideInformiert();
 
 
     force.on('tick', function (e) {
@@ -486,6 +503,7 @@ function moveToAgecat(alpha) {
     hideAgecat();
     hideScreentime();
     hideSorgen();
+    hideInformiert();
 
 
     force.on('tick', function (e) {
@@ -620,7 +638,56 @@ function moveToAgecat(alpha) {
       .text(function (d) { return d; });
     }    
 
+   //INFORMIERT
+//
+// -----------------------------------------------------------------*/
+    
+  function splitBubblesintoInformiert() {
+    showInformiert();
+    hideYear();
+    hideSex();
+    hideAgecat();
+    hideScreentime();
+    hideSorgen();
+
+    force.on('tick', function (e) {
+      bubbles.each(moveToInformiert(e.alpha))
+        .attr('cx', function (d) { return d.x; })
+        .attr('cy', function (d) { return d.y; });
+    });
+
+    force.start();
+  }
+
+  function moveToInformiert(alpha) {
+    return function (d) {
+      var target = informiertCenters[d.informiert];
+      d.x = d.x + (target.x - d.x) * damper * alpha * 1.1;
+      d.y = d.y + (target.y - d.y) * damper * alpha * 1.1;
+    };
+  }
+
+  function hideInformiert() {
+    svg.selectAll('.informiert').remove();
+  }
+
+  function showInformiert() {
+
+    var informiertData = d3.keys(informiertTitleX);
+    var informiert = svg.selectAll('.informiert')
+      .data(informiertData);
+
+    informiert.enter().append('text')
+      .attr('class', 'informiert')
+      .attr('x', function (d) { return informiertTitleX[d]; })
+      .attr('y', 65)
+      .attr('text-anchor', 'middle')
+      .text(function (d) { return d; });
+    }    
+
    
+    
+    
     
     
 //* ------------------------------------------------------------------
@@ -650,6 +717,8 @@ function moveToAgecat(alpha) {
       splitBubblesintoScreentime();
     } else if (displayName === 'sorgen') {
       splitBubblesintoSorgen();
+       } else if (displayName === 'informiert') {
+      splitBubblesintoInformiert();
     } else {
       groupBubbles();
     }
@@ -698,6 +767,9 @@ function moveToAgecat(alpha) {
                   '</span><br/>' +
                   '<span class="name">Ich mache mir Sorgen um meine Daten: </span><span class="value">' +
                   d.sorgen +
+                  '</span><br/>' +
+        '<span class="name">Ich informiere mich auf Socialmedia: </span><span class="value">' +
+                  d.informiert +
                   '</span><br/>' +
                   '<span class="name">"Umfragejahr": </span><span class="value">' +
                   d.year +
